@@ -1,10 +1,9 @@
-# Connect Prisma to Express — Starter
+# Connect Prisma to Express
 
-A working Express + React app whose data currently lives in an **in-memory array**
-(`server/routes/threads.js`). Restart the server and every thread disappears.
-
-**Your task:** give it a real database. Connect **Prisma + PostgreSQL** so the app
-boots with a live connection — **without changing a single line of the React frontend.**
+A working Express + React app configured to connect **Prisma + PostgreSQL** at
+server startup. The Threads API remains backed by the in-memory array in
+`server/routes/threads.js`; this setup creates the database model and migration
+without changing the API routes or React frontend.
 
 ## Prerequisites
 - Node.js 18+
@@ -18,16 +17,14 @@ npm run setup     # installs root, server, and client deps
 cp client/.env.development.example client/.env.development
 ```
 
-## What you implement (all server-side, in `server/`)
-1. `cp .env.example .env` and fill in your real `DATABASE_URL`.
-2. Install Prisma: `npm install prisma --save-dev` and `npm install @prisma/client`.
-3. `npx prisma init` (creates `prisma/schema.prisma`).
-4. Write the `Thread` model in `schema.prisma` (`id`, `title`, `body`, `createdAt`).
-5. `npx prisma migrate dev --name init` (creates the table + a migration file).
-6. Create the **PrismaClient singleton** in `prisma/client.js` and import it in `server.js`.
-7. Make `server.js` `await prisma.$connect()` and log a clear "connected" message before it listens.
-
-Follow the `TODO` markers in `server/server.js`.
+## Setup (all server-side)
+1. Copy `server/.env.example` to `server/.env` and set your real `DATABASE_URL`.
+2. Create the PostgreSQL database referenced by `DATABASE_URL`.
+3. Install dependencies with `npm run setup`.
+4. From `server/`, run `npx prisma migrate dev --name init` to create the
+   `Thread` table and apply the initial migration.
+5. Start the app with `npm run dev`. Express connects to PostgreSQL before it
+   starts listening.
 
 ## Run
 ```bash
@@ -35,17 +32,17 @@ npm run dev       # server on :3001, client on :5173
 ```
 
 ## Success looks like
-- The server terminal prints your **"Prisma connected"** message with **no Prisma errors**.
-- The React app loads and shows an **empty list from the database** (`GET /api/threads` → `[]`).
-- `psql`: `SELECT * FROM "Thread";` shows an empty `Thread` table.
+- The server terminal prints **"Prisma connected"** before the API starts listening.
+- The React app loads and the existing Threads API remains unchanged.
+- `psql`: `SELECT * FROM "Thread";` can query the table created by the migration.
 
 ## Project layout
 ```
 server/
-  server.js            ← add Prisma import + connect-then-listen (TODOs here)
-  routes/threads.js    ← in-memory API — DO NOT edit
-  prisma/              ← empty; you create schema.prisma, migrations/, client.js
-  .env.example         ← DATABASE_URL placeholder (copy to .env)
+  server.js            ← connects Prisma before starting Express
+  routes/threads.js    ← in-memory API — unchanged
+  prisma/              ← schema.prisma, migrations/, and PrismaClient singleton
+  .env.example         ← DATABASE_URL template (copy to .env)
 client/                ← complete React app — DO NOT change
 ```
 
